@@ -1,5 +1,6 @@
 const _ = require('underscore');
 const keypress = require('keypress');
+const {enqueue, dequeue} = require('./messageQueue');
 
 ///////////////////////////////////////////////////////////////////////////////
 // Utility Function ///////////////////////////////////////////////////////////
@@ -37,6 +38,8 @@ module.exports.initialize = () => {
     // check to see if the keypress itself is a valid message
     if (isValidMessage(key.name)) {
       console.log(`Message received: ${key.name}`);
+      //queue the command
+      enqueue(key.name);
       return; // don't do any more processing on this key
     }
     
@@ -46,6 +49,7 @@ module.exports.initialize = () => {
       logKeypress('\n');
       if (isValidMessage(message)) {
         console.log(`Message received: ${message}`);
+        enqueue(message);
       }
       // clear the buffer where we are collecting keystrokes
       message = '';

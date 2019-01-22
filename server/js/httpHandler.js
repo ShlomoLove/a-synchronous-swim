@@ -1,4 +1,6 @@
 const headers = require('./cors');
+let {enqueue, dequeue} = require('./messageQueue');
+
 
 var sendResponse = function(response, data, statusCode) {
   statusCode = statusCode || 200;
@@ -13,19 +15,24 @@ function randomMove () {
 }
 
 module.exports = (req, res) => {
-  if (req.method === 'GET') {
-    console.log ('request received');
-    sendResponse(res, randomMove(), 200);
+  if (req.method === 'GET') { 
+    if(req.url === '/item') {
+      //dequeue and send response back
+      sendResponse(res, JSON.stringify(dequeue().toLowerCase()), 200);
+    } else {
+      sendResponse(res, randomMove(), 200); //this makes swimmers move in a random direction
+    }
   }
 
-  if (req.method === 'POST') {
-    console.log ('post received');
-    sendResponse(res, 'hello', 201)
-
-
+  if (req.method === 'POST') { //this queues up the commands for swimmers
+    var bundle = '';
+    req.on('data', function(chunk) {
+      bundle += chunk;
+      enqueue(bundle);
+    });
+    sendResponse(res, null, 201);
   }
-  // res.writeHead(200, headers);
-  // res.end();
+
 };
 
 

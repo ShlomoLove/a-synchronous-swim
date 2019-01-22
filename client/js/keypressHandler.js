@@ -17,7 +17,17 @@ $('body').on('keydown', (event) => {
 
 console.log('Client is running in the browser!');
 
+var nextMove = '';
 
+$('.ajaxDequeue').on('click', function(event) {
+  $.ajax({
+    url: 'http://127.0.0.1:3000/item',
+    type: 'GET',
+    error: (error) => {console.log('error', error)},
+    success: (data) => {nextMove += JSON.parse(data)},
+    complete: () => {SwimTeam.move(nextMove); nextMove = '';},
+  })
+})
 
 $('.changeButton').on('click', function(event){
   var moves = ['left', 'right', 'up', 'down'];
